@@ -1,88 +1,63 @@
-#from pytube import YouTube
-#from sys import argv
-#
-##0 es el nombre del programa. 1 es la primera línea.
-#link = argv[1]
-#yt = YouTube(link)
-#
-#print("Título: ", yt.title)
-#print("Vistas: ", yt.views)
-#
-#yd = yt.streams.get_audio_only()
-#yd.download('F:\PyProjects\Pytube\Audio')
-import os
-import tkinter as tk
-from tkinter import ttk
+import tkinter
+import customtkinter
 from pytube import YouTube
-from threading import Thread
-from sys import argv
 
-def get_video_info():
-    link = url_entry.get()
+
+def iniciarDescarga():
     try:
-        yt = YouTube(link)
-        title_label.config(text="Título: " + yt.title)
-        views_label.config(text="Vistas: " + str(yt.views))
-        status_label.config(text=":)")
-    except Exception as e:
-        status_label.config(text="Error: " + str(e))
-
-def download_audio():
-    link = url_entry.get()
-    try:
-        yt = YouTube(link)
-        title_label.config(text="Título: " + yt.title)
-        views_label.config(text="Vistas: " + str(yt.views))
-
-        yd = yt.streams.get_audio_only()
-
-        # Get the current working directory
-        current_directory = os.getcwd()
-
-        # Use the current directory as the download folder
-        download_folder = os.path.join(current_directory, 'Audio')
-
-        # Create the download folder if it doesn't exist
-        os.makedirs(download_folder, exist_ok=True)
-
-        yd.download(download_folder)
-
-        status_label.config(text="Descarga terminada :)")
-    except Exception as e:
-        status_label.config(text="Error: " + str(e))
+        ytLink = link.get()
+        ytObject = YouTube(ytLink, on_progress_callback=on_progress)
+        audio = ytObject.streams.get_audio_only()
+        title.configure(text=ytObject.title, text_color="white")
+        finishLabel.configure(text="")
+        audio.download()
+        finishLabel.configure(text="Descarga terminada", text_color="green")
+    except:
+        finishLabel.configure(text="El enlace no es válido", text_color="red")
 
 
-def start_info_thread():
-    info_thread = Thread(target=get_video_info)
-    info_thread.start()
+def on_progress(stream, chunk, bytes_remaining):
+    total_size = stream.filesize
+    bytes_downloaded = total_size - bytes_remaining
+    porcentaje_completado = bytes_downloaded / total_size * 100
+    per = str(int(porcentaje_completado))
+    pPorcentaje.configure(text=per + ' %')
+    pPorcentaje.update()
 
-def start_download_thread():
-    download_thread = Thread(target=download_audio)
-    download_thread.start()
+    barraProgreso.set(float(porcentaje_completado) / 100)
 
-#GUI
-root = tk.Tk()
-root.title("Descarga de audio")
 
-url_label = tk.Label(root, text="Pegar URL:")
-url_label.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
+# Ajustes
+customtkinter.set_appearance_mode("System")
+customtkinter.set_default_color_theme("blue")
 
-url_entry = tk.Entry(root, width=40)
-url_entry.grid(row=0, column=1, padx=10, pady=10, sticky=tk.W)
+# Estilo
+app = customtkinter.CTk()
+app.geometry("720x480")
+app.title("Audio Descarga")
 
-info_button = tk.Button(root, text="Ver info del video", command=start_info_thread)
-info_button.grid(row=1, column=0, pady=10)
+# UI
+title = customtkinter.CTkLabel(app, text="Pegar enlace de YouTube")
+title.pack(padx=10, pady=10)
 
-start_button = tk.Button(root, text="Descargar", command=start_download_thread)
-start_button.grid(row=1, column=1, pady=10)
+url_var = tkinter.StringVar()
+link = customtkinter.CTkEntry(app, width=350, height=40, textvariable=url_var)
+link.pack()
 
-title_label = tk.Label(root, text="Título:")
-title_label.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W)
+finishLabel = customtkinter.CTkLabel(app, text="")
+finishLabel.pack()
 
-views_label = tk.Label(root, text="Vistas:")
-views_label.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W)
+# Barra de progreso
+pPorcentaje = customtkinter.CTkLabel(app, text="0 %")
+pPorcentaje.pack()
 
-status_label = tk.Label(root, text="")
-status_label.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W)
+barraProgreso = customtkinter.CTkProgressBar(app, width=400)
+barraProgreso.set(0)
+barraProgreso.pack(padx=10, pady=10)
 
-root.mainloop()
+# Botón de descarga
+descarga = customtkinter.CTkButton(app, text="Descargar", command=iniciarDescarga)
+descarga.pack(padx=10, pady=10)
+
+# Esto ejecuta el programa
+app.mainloop()
