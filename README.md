@@ -5,7 +5,8 @@ Programa en Python para descargar el audio de un video de YouTube.
 Se pega la URL del video, y se hace clic en "Descargar"
 (el botón "ver info del video" es solo para probar si anda bien la URL).
 
-![image](https://github.com/Luicha/YouTubeAudio/assets/16231154/1847c4d9-0e79-4cb8-97b4-913ce6031b2b)
+![image](https://github.com/Luicha/YouTubeAudio/assets/16231154/1ea0046a-5e38-4812-bdbd-2c812a69c42b)
+
 
 
 ## Requisitos
